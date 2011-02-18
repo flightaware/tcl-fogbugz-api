@@ -3,7 +3,7 @@
 #
 
 PACKAGE=	fogbugz
-FILES=		common.tcl 
+FILES=		main.tcl 
 
 PREFIX?=	/usr/local
 LIB?=		$(PREFIX)/lib
