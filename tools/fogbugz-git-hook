@@ -40,7 +40,36 @@ proc main {argv} {
 	set emulation [file tail [info script]]
 
 	switch $emulation {
-		pre-commit-msg {
+		fogbugz-git-hook {
+			set cmd [lindex $argv 0]
+			switch $cmd {
+				init {
+					set binary [lindex $argv 1]
+					if {$binary == ""} {
+						set binary "/usr/local/bin/fogbugz-git-hook"
+					}
+					if {![file exists $binary] && ![file executable $binary]} {
+						puts stderr "Invalid hook script: $binary"
+						exit -1
+					}
+					if {![file exists .git] || ![file isdirectory .git]} {
+						puts stderr "Not a git repository"
+						exit -1
+					}
+					puts "Linking prepare-commit-msg"
+					exec ln -sf $binary .git/hooks/prepare-commit-msg 
+					puts "Linking commit-msg"
+					exec ln -sf $binary .git/hooks/commit-msg 
+				}
+				default {
+					puts stderr "Unrecognized command $argv"
+					exit -1
+				}
+			}
+			exit
+		}
+
+		prepare-commit-msg {
 			if {[file exists $argv]} {
 				set ::msgfile $argv
 				set ::commit_msg [load_msg $::msgfile]
