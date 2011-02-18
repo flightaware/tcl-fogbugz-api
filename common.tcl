@@ -32,13 +32,21 @@ proc get_xml {url qs} {
 	return [list 1 $xml]
 }
 
-proc login {url email password} {
+proc login {{api_url ""} {email ""} {password ""}} {
 	::http::register https 443 ::tls::socket
 
-	set ::fogbugz::url $url
+	if {$api_url != ""} {
+		set ::fogbugz::config(api_url)	$api_url
+		set ::fogbugz::config(email)	$email
+		set ::fogbugz::config(password)	$password
+	}
 
-	set qs	[::http::formatQuery cmd logon email $email password $password]
-	lassign [get_xml $::fogbugz::url $qs] success xml error
+	if {![info exists ::fogbugz::config(api_url)]} {
+		return [list 0 "No FogBugz API URL is configured"]
+	}
+
+	set qs	[::http::formatQuery cmd logon email $::fogbugz::config(email) password $::fogbugz::config(password)]
+	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
 		return [list 0 $error]
@@ -68,7 +76,7 @@ proc parse_element {element type} {
 
 proc listPeople {dict} {
 	set qs [::http::formatQuery cmd listPeople token [dict get $dict token]]
-	lassign [get_xml $::fogbugz::url $qs] success xml error
+	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
 		return [list 0 $error $xml]
@@ -114,7 +122,7 @@ proc whoami {dict} {
 
 proc listIntervals {dict} {
 	set qs [::http::formatQuery cmd listIntervals ixPerson [dict get $dict ixPerson] token [dict get $dict token] dtStart [dict get $dict dtStart]]
-	lassign [get_xml $::fogbugz::url $qs] success xml error
+	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
 		return [list 0 $error $xml]
