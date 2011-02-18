@@ -1,0 +1,116 @@
+#!/usr/bin/env tclsh8.5
+
+package require fogbugz
+
+#
+# You can hard-code the credentials into this script, and if they exist they'll
+# be used.  If you don't set these values, the script will simply attempt to use
+# any credentials that are embedded in the fogbugz Tcl package if applicable.
+#
+#set ::api_url	"https://fogbugz.example.com/api.asp"
+#set ::email		"username@example.com"
+#set ::password	"password1234"
+
+proc emit_msg {message {bugzid ""}} {
+	set fp [open $::msgfile w]
+	puts $fp ""
+	puts $fp "BUGZID: $bugzid"
+	puts $fp "# ^^"
+	foreach line [split $message "\n"] {
+		puts $fp "# $line"
+	}
+	puts $fp "# "
+	foreach line [split $::commit_msg "\n"] {
+		if {[string trim $line] != ""} {
+			puts $fp $line
+		}
+	}
+	exit
+}
+
+proc load_msg {filename} {
+	set fp [open $::msgfile r]
+	set commit_msg [read $fp]
+	close $fp
+
+	return $commit_msg
+}
+
+proc main {argv} {
+	set emulation [file tail [info script]]
+
+	switch $emulation {
+		pre-commit-msg {
+			if {[file exists $argv]} {
+				set ::msgfile $argv
+				set ::commit_msg [load_msg $::msgfile]
+			} else {
+				set ::msgfile /dev/stdout
+				set ::commit_msg "# No Git-supplied commit message found\n# File doesn't exist: $argv\n#"
+			}
+
+			if {[info exists ::api_url]} {
+				lassign [::fogbugz::login $::api_url $::email $::password] logged_in token
+			} else {
+				lassign [::fogbugz::login] logged_in token
+			}	
+	
+			if {!$logged_in} {
+				emit_msg "Unable to connect to FogBugz, sorry ($token)"
+			}
+
+			lassign [::fogbugz::whoami [dict create token $token]] ixPerson sFullName
+		
+			if {!$ixPerson} {
+				emit_msg "Git could not determine your FogBugz User ID so no BUGZID was set"
+			}
+
+			# debug "You are user id $ixPerson"
+
+			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
+			foreach interval [::fogbugz::listIntervals [dict create token $token ixPerson $ixPerson dtStart $dtStart]] {
+				set dtEnd [dict get $interval dtEnd]
+				if {$dtEnd == ""} {
+					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] 
+				}
+			}
+			emit_msg "There is no current activity in FogBugz for $sFullName"
+		}
+
+		commit-msg {
+			if {![file exists $argv]} {
+				puts stderr "Commit message file does not exist: $argv"
+				exit -1
+			}
+
+			set ::msgfile $argv
+			set ::commit_msg [load_msg $::msgfile]
+
+			set content 0
+			foreach line [split $::commit_msg "\n"] {
+				set line [string trim $line]
+				if {[string range $line 0 0] != "#"} {
+					if {$line != "" && $line != "BUGZID:"} {
+						set content 1
+					}
+				}
+			}
+
+			if {!$content} {
+				puts "Aborting commit due to empty commit message. (FA)"
+				exit -1
+			}
+
+			exit
+		}
+		
+		default {
+			puts stderr "Unrecognizing emulation: '$emulation'"
+			exit -1
+		}
+	}
+}
+
+if !$tcl_interactive {
+	main $argv
+}
