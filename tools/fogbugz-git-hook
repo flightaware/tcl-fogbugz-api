@@ -56,9 +56,9 @@ proc main {argv} {
 						puts stderr "Not a git repository"
 						exit -1
 					}
-					puts "Linking prepare-commit-msg"
+					puts "Linking prepare-commit-msg hook"
 					exec ln -sf $binary .git/hooks/prepare-commit-msg 
-					puts "Linking commit-msg"
+					puts "Linking commit-msg hook"
 					exec ln -sf $binary .git/hooks/commit-msg 
 				}
 				default {
