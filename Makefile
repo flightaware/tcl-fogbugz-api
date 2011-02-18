@@ -18,6 +18,8 @@ TCLSH?=		tclsh8.5
 
 install:	install-package
 
+uninstall:	uninstall-package
+
 install-package:
 	@echo Installing $(PACKAGE) to $(TARGET)
 	@install -o $(UID) -g $(GID) -m 0755 -d $(TARGET)
@@ -27,6 +29,9 @@ install-package:
 	@echo "  Generating pkgIndex.tcl"
 	@cd $(TARGET) && echo "pkg_mkIndex -- ." | $(TCLSH)
 	@echo "Installation complete"
+
+make uninstall-package:
+	rm -rf $(TARGET)
 
 install-git-hook:
 	@echo "Installing fogbugz-git-hook to $(BIN)" 
