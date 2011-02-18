@@ -107,31 +107,6 @@ proc getList {object dict} {
 	return $returnList
 }
 
-proc old_listPeople {dict} {
-	set qs [::http::formatQuery cmd listPeople token [dict get $dict token]]
-	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
-
-	if {!$success} {
-		return [list 0 $error $xml]
-	}
-
-	# puts "-- \n$xml\n-- "
-	set dom [dom parse $xml]
-	set doc [$dom documentElement]
-	set people [$doc selectNodes {/response/people/person}]
-	# puts "== \n$people\n== "
-
-	set peopleList [list]
-
-	foreach person $people {
-		lappend peopleList [parse_element $person ixPerson]
-	}
-
-	$dom delete
-
-	return $peopleList
-}
-
 proc whoami {dict} {
 	set peopleList [getList People $dict]
 
@@ -150,32 +125,6 @@ proc whoami {dict} {
 	}
 
 	return 0
-}
-
-
-proc old_listIntervals {dict} {
-	set qs [::http::formatQuery cmd listIntervals ixPerson [dict get $dict ixPerson] token [dict get $dict token] dtStart [dict get $dict dtStart]]
-	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
-
-	if {!$success} {
-		return [list 0 $error $xml]
-	}
-
-	# puts "-- \n$xml\n-- "
-	set dom [dom parse $xml]
-	set doc [$dom documentElement]
-	set intervals [$doc selectNodes {/response/intervals/interval}]
-	# puts "== \n$intervals\n== "
-
-	set intervalsList [list]
-
-	foreach interval $intervals {
-		lappend intervalsList [parse_element $interval interval]
-	}
-
-	$dom delete
-
-	return $intervalsList
 }
 
 }
