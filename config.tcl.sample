@@ -1,0 +1,9 @@
+namespace eval ::fogbugz {
+
+set ::fogbugz::config(api_url)	"https://fogbugz.example.com/api.asp"
+set ::fogbugz::config(email)	"email@example.com"
+set ::fogbugz::config(password)	"password1234"
+
+}
+
+package provides fogbugz 1.0
