@@ -97,7 +97,8 @@ proc main {argv} {
 			# debug "You are user id $ixPerson"
 
 			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
-			foreach interval [::fogbugz::listIntervals [dict create token $token ixPerson $ixPerson dtStart $dtStart]] {
+			foreach interval [::fogbugz::getList Intervals [dict create token $token ixPerson $ixPerson dtStart $dtStart]] {
+				puts $interval
 				set dtEnd [dict get $interval dtEnd]
 				if {$dtEnd == ""} {
 					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] 
