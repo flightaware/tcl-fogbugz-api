@@ -6,14 +6,19 @@ PACKAGE=	fogbugz
 FILES=		common.tcl 
 
 PREFIX?=	/usr/local
-TARGET?=	$(PREFIX)/lib/$(PACKAGE)
+LIB?=		$(PREFIX)/lib
+BIN?=		$(PREFIX)/bin
+
+TARGET?=	$(LIB)/$(PACKAGE)
 
 UID?=		0
 GID?=		0
 
 TCLSH?=		tclsh8.5
 
-install:
+install:	install-package
+
+install-package:
 	@echo Installing $(PACKAGE) to $(TARGET)
 	@install -o $(UID) -g $(GID) -m 0755 -d $(TARGET)
 	@echo "  Copying $(FILES)"
@@ -22,3 +27,8 @@ install:
 	@echo "  Generating pkgIndex.tcl"
 	@cd $(TARGET) && echo "pkg_mkIndex -- ." | $(TCLSH)
 	@echo "Installation complete"
+
+install-git-hook:
+	@echo "Installing fogbugz-git-hook to $(BIN)" 
+	@install -o $(UID) -g $(UID) -m 0755 tools/fogbugz-git-hook $(BIN)/ 
+
