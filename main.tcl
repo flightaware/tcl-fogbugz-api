@@ -38,6 +38,7 @@ proc get_xml {url qs} {
 
 proc login {{api_url ""} {email ""} {password ""}} {
 	::http::register https 443 ::tls::socket
+	load_globals
 
 	if {$api_url != ""} {
 		set ::fogbugz::config(api_url)	$api_url
@@ -79,8 +80,6 @@ proc parse_element {element type} {
 }
 
 proc getList {object dict} {
-	load_globals
-
 	set object [string totitle $object]
 	set qs [::http::formatQuery cmd "list$object" token [dict get $dict token]]
 	# puts "qs ::${qs}::"
