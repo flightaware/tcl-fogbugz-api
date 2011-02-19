@@ -114,8 +114,10 @@ proc parse_element {element type} {
 }
 
 proc getList {object dict} {
-	set qs [::http::formatQuery cmd "list$object" token [dict get $dict token]]
-	debug "qs ::${qs}::"
+	set qs    [::http::formatQuery cmd "list$object"]
+	foreach arg [dict keys $dict] {
+		append qs "&[::http::formatQuery $arg [dict get $dict $arg]]"
+	}
 	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
