@@ -15,10 +15,6 @@ proc debug {buf} {
 proc load_globals {} {
 	set ::fogbugz::debug 0
 
-	set ::fogbugz::fields(person) [list ixPerson sFullName sEmail sPhone fAdministrator fCommunity fVirtual fDeleted fNotify sHomepage sLocale sLanguage sTimeZoneKey fExpert]
-	set ::fogbugz::fields(interval) [list ixBug ixInterval dtStart dtEnd sTitle ixPerson]
-	set ::fogbugz::fields(filter)	[list sFilter]
-
 	set ::fogbugz::listResult(Filters)		{filters filter}
 	set ::fogbugz::listResult(Intervals)	{intervals interval}
 	set ::fogbugz::listResult(People)		{people person}
