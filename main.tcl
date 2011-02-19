@@ -18,6 +18,15 @@ proc load_globals {} {
 	set ::fogbugz::listResult(Filters)		{filters filter}
 	set ::fogbugz::listResult(Intervals)	{intervals interval}
 	set ::fogbugz::listResult(People)		{people person}
+	set ::fogbugz::listResult(Projects)		{projects project}
+	set ::fogbugz::listResult(Areas)		{areas area}
+	set ::fogbugz::listResult(Categories)	{categories category}
+	set ::fogbugz::listResult(Priorities)	{priorities priority}
+	set ::fogbugz::listResult(Statuses)		{statuses status}
+	set ::fogbugz::listResult(FixFors)		{fixfors fixfor}
+	set ::fogbugz::listResult(Mailboxes)	{mailboxes mailbox}
+	set ::fogbugz::listResult(Wikis)		{wikis wiki}
+	set ::fogbugz::listResult(Snippets)		{snippets snippet}
 }
 
 proc get_xml {url qs} {
@@ -105,13 +114,12 @@ proc parse_element {element type} {
 }
 
 proc getList {object dict} {
-	set object [string totitle $object]
 	set qs [::http::formatQuery cmd "list$object" token [dict get $dict token]]
 	debug "qs ::${qs}::"
 	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
-		return [list 0 $error $xml]
+		return [list 0 "getList $object ERROR: $error" $xml]
 	}
 
 	debug "-- $object xml --\n$xml"
@@ -131,6 +139,11 @@ proc getList {object dict} {
 	}
 
 	$dom delete
+
+	#if {[llength $returnList] == 0} {
+	#	puts "No elements in $object List"
+	#	puts "-- \n$xml\n-- "
+	#}
 
 	return $returnList
 }
