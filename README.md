@@ -7,11 +7,15 @@ documented at http://fogbugz.stackexchange.com/fogbugz-xml-api
 Currently this package only supports login and the various list methods of
 the API.
 
-Other Stuff
------------
+Requirements
+------------
 
-Sample source code that makes use of the ::fogbugz Tcl package is included
-in the tools directory:
+* A [FogBugz](http://www.fogcreek.com/fogbugz/) server or FogBugz On Demand account
+* Tcl 8.4 or newer
+* [tDOM](https://github.com/tDOM/tdom)
+
+Other Stuff that's Included
+---------------------------
 
 * fogbugz-git-hook is a script which can be used to auto-populate a BUGZID
   reference in git commits based on the user's "Currently Working On" setting
