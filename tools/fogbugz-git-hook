@@ -14,7 +14,7 @@ package require fogbugz
 proc emit_msg {message {bugzid ""}} {
 	set fp [open $::msgfile w]
 	puts $fp ""
-	puts $fp "BUGZID: $bugzid"
+	puts $fp "BUGZID:$bugzid"
 	puts $fp "# ^^"
 	foreach line [split $message "\n"] {
 		puts $fp "# $line"
