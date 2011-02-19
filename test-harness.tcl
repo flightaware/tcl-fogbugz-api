@@ -8,6 +8,8 @@ proc rule {} {
 }
 
 proc main {} {
+	set verbose 0
+
 	parray ::fogbugz::config
 	lassign [::fogbugz::login] logged_in token
 	if {!$logged_in} {
@@ -21,6 +23,11 @@ proc main {} {
 	foreach listType [array names ::fogbugz::listResult] {
 		set result [::fogbugz::getList $listType [dict create token $token]]
 		puts "list$listType returned [llength $result] items"
+		if {$verbose} {
+			foreach item $result {
+				puts "- $item"
+			}
+		}
 	}
 
 }
