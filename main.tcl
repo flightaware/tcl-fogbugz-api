@@ -6,11 +6,22 @@ package require tls
 
 namespace eval ::fogbugz {
 
-proc load_globals {} {
-	set ::fogbugz::fields(ixPerson) [list ixPerson sFullName sEmail sPhone fAdministrator fCommunity fVirtual fDeleted fNotify sHomepage sLocale sLanguage sTimeZoneKey fExpert]
-	set ::fogbugz::fields(interval) [list ixBug ixInterval dtStart dtEnd sTitle ixPerson]
+proc debug {buf} {
+	if {$::fogbugz::debug} {
+		puts $buf
+	}
+}
 
-	set ::fogbugz::objType(People) ixPerson
+proc load_globals {} {
+	set ::fogbugz::debug 0
+
+	set ::fogbugz::fields(person) [list ixPerson sFullName sEmail sPhone fAdministrator fCommunity fVirtual fDeleted fNotify sHomepage sLocale sLanguage sTimeZoneKey fExpert]
+	set ::fogbugz::fields(interval) [list ixBug ixInterval dtStart dtEnd sTitle ixPerson]
+	set ::fogbugz::fields(filter)	[list sFilter]
+
+	set ::fogbugz::listResult(Filters)		{filters filter}
+	set ::fogbugz::listResult(Intervals)	{intervals interval}
+	set ::fogbugz::listResult(People)		{people person}
 }
 
 proc get_xml {url qs} {
@@ -70,35 +81,57 @@ proc login {{api_url ""} {email ""} {password ""}} {
 }
 
 proc parse_element {element type} {
-	foreach field $::fogbugz::fields($type) {
-		# debug "Parsing $element :: $field"
-		set value [[$element getElementsByTagName $field] asText]
-		dict set retdict $field $value
+	foreach domNode [split [$element getElementsByTagName *]] {
+		set field [$domNode nodeName]
+		set value [$domNode asText]
+		debug "$field = $value"
+		if {$value != ""} {
+			dict set retdict $field $value
+		}
+	}
+	foreach field [split [$element attributes *]] {
+		set value [$element getAttribute $field]
+		debug "$field = $value *"
+		if {$value != ""} {
+			dict set retdict $field $value
+		}
 	}
 
-	return $retdict
+	foreach attr {data text target} {
+		catch {dict set retdict $attr [$element $attr]}
+	}
+
+	if {[info exists retdict]} {
+		return $retdict
+	}
+
+	return
 }
 
 proc getList {object dict} {
 	set object [string totitle $object]
 	set qs [::http::formatQuery cmd "list$object" token [dict get $dict token]]
-	# puts "qs ::${qs}::"
+	debug "qs ::${qs}::"
 	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 
 	if {!$success} {
 		return [list 0 $error $xml]
 	}
 
-	# puts "-- \n$xml\n-- "
+	debug "-- $object xml --\n$xml"
 	set dom [dom parse $xml]
 	set doc [$dom documentElement]
-	set nodeList [$doc selectNodes {/response/people/person}]
-	# puts "== \n$nodeList\n== "
+	set selectPath "/[join [concat "response" $::fogbugz::listResult($object)] "/"]"
+	debug "-- $object selectPath: $selectPath --"
+	set nodeList [$doc selectNodes $selectPath]
+	debug "== $object nodeList ==\n$nodeList"
 
 	set returnList [list]
 
 	foreach obj $nodeList {
-		lappend returnList [parse_element $obj $::fogbugz::objType($object)]
+		set retbuf [parse_element $obj [lindex $::fogbugz::listResult($object) end]]
+		debug $retbuf
+		lappend returnList $retbuf
 	}
 
 	$dom delete
