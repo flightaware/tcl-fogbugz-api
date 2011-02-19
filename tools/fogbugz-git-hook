@@ -98,9 +98,7 @@ proc main {argv} {
 
 			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
 			foreach interval [::fogbugz::getList Intervals [dict create token $token ixPerson $ixPerson dtStart $dtStart]] {
-				puts $interval
-				set dtEnd [dict get $interval dtEnd]
-				if {$dtEnd == ""} {
+				if {![dict exists $interval dtEnd]} {
 					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] 
 				}
 			}

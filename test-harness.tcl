@@ -30,6 +30,7 @@ proc main {} {
 		}
 	}
 
+	rule
 }
 
 if !$tcl_interactive main
