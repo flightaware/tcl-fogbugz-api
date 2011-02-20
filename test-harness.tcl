@@ -24,6 +24,10 @@ proc main {} {
 	rule
 
 	if {0} {
+		#
+		# Example of using the getList proc for obtaining a list of objects
+		# from the FogBugz server.
+		#
 		foreach listType [array names ::fogbugz::listResult] {
 			set result [::fogbugz::getList $listType [dict create token $token]]
 			puts "list$listType returned [llength $result] items"
@@ -37,14 +41,25 @@ proc main {} {
 	}
 
 	if {1} {
-		# puts [::fogbugz::raw_cmd viewPerson [dict create token $token ixPerson 2]]
-		puts [::fogbugz::view Person [dict create token $token ixPerson 2]]
+		#
+		# Examples of using raw_cmd proc for running a raw API method and returning
+		# the result data into an array/dict suitable string
+		#
+		puts "ixPerson 2:"
+		array set person [::fogbugz::view Person [dict create token $token ixPerson 2]]
+		parray person
+
 		rule
-		puts [::fogbugz::view Status [dict create token $token ixStatus 2]]
+
+		puts "ixStatus 2:"
+		array set status [::fogbugz::view Status [dict create token $token ixStatus 2]]
+		parray status
 		rule
 	}
 
-
+	#
+	# Logging off.  It's not just a good idea, it's the spec.
+	#
 	::fogbugz::logoff $token
 }
 
