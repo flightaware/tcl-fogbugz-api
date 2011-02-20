@@ -169,6 +169,29 @@ proc getList {object dict} {
 	return $returnList
 }
 
+proc view {object dict} {
+	lassign [raw_cmd "view$object" $dict] success xml error
+
+	if {!$success} {
+		return
+	}
+
+	debug "-- $object xml --\n$xml"
+	set dom [dom parse $xml]
+	set doc [$dom documentElement]
+	set selectPath "/[join [list "response" [string tolower $object]] "/"]"
+	debug "-- $object selectPath: $selectPath --"
+	set nodeList [$doc selectNodes $selectPath]
+	debug "== $object nodeList ==\n$nodeList"
+
+	foreach obj $nodeList {
+		set retbuf [parse_element $obj [string tolower $object]]
+	}
+	debug $retbuf
+
+	return $retbuf
+}
+
 proc whoami {dict} {
 	set peopleList [getList People $dict]
 
