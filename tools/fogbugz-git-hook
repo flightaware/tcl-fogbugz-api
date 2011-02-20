@@ -36,6 +36,20 @@ proc load_msg {filename} {
 	return $commit_msg
 }
 
+proc bail {{retcode 0} {msg ""}} {
+	if {[info exists ::token]} {
+		::fogbugz::logoff $::token
+	}
+	if {$msg != ""} {
+		if {$retcode} {
+			puts stderr $msg
+		} else {
+			puts $msg
+		}
+	}
+	exit $retcode
+}
+
 proc main {argv} {
 	set emulation [file tail [info script]]
 
@@ -49,12 +63,10 @@ proc main {argv} {
 						set binary "/usr/local/bin/fogbugz-git-hook"
 					}
 					if {![file exists $binary] && ![file executable $binary]} {
-						puts stderr "Invalid hook script: $binary"
-						exit -1
+						bail -1 "Invalid hook script: $binary"
 					}
 					if {![file exists .git] || ![file isdirectory .git]} {
-						puts stderr "Not a git repository"
-						exit -1
+						bail -1 "Not a git repository"
 					}
 					puts "Linking prepare-commit-msg hook"
 					exec ln -sf $binary .git/hooks/prepare-commit-msg 
@@ -62,11 +74,10 @@ proc main {argv} {
 					exec ln -sf $binary .git/hooks/commit-msg 
 				}
 				default {
-					puts stderr "Unrecognized command $argv"
-					exit -1
+					bail -1 stderr "Unrecognized command $argv"
 				}
 			}
-			exit
+			bail
 		}
 
 		prepare-commit-msg {
@@ -79,16 +90,16 @@ proc main {argv} {
 			}
 
 			if {[info exists ::api_url]} {
-				lassign [::fogbugz::login $::api_url $::email $::password] logged_in token
+				lassign [::fogbugz::login $::api_url $::email $::password] logged_in ::token
 			} else {
-				lassign [::fogbugz::login] logged_in token
+				lassign [::fogbugz::login] logged_in ::token
 			}	
 	
 			if {!$logged_in} {
-				emit_msg "Unable to connect to FogBugz, sorry ($token)"
+				emit_msg "Unable to connect to FogBugz, sorry ($::token)"
 			}
 
-			lassign [::fogbugz::whoami [dict create token $token]] ixPerson sFullName
+			lassign [::fogbugz::whoami [dict create token $::token]] ixPerson sFullName
 		
 			if {!$ixPerson} {
 				emit_msg "Git could not determine your FogBugz User ID so no BUGZID was set"
@@ -97,7 +108,7 @@ proc main {argv} {
 			# debug "You are user id $ixPerson"
 
 			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
-			foreach interval [::fogbugz::getList Intervals [dict create token $token ixPerson $ixPerson dtStart $dtStart]] {
+			foreach interval [::fogbugz::getList Intervals [dict create token $::token ixPerson $ixPerson dtStart $dtStart]] {
 				if {![dict exists $interval dtEnd]} {
 					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] 
 				}
@@ -107,8 +118,7 @@ proc main {argv} {
 
 		commit-msg {
 			if {![file exists $argv]} {
-				puts stderr "Commit message file does not exist: $argv"
-				exit -1
+				bail -1 "Commit message file does not exist: $argv"
 			}
 
 			set ::msgfile $argv
@@ -125,16 +135,14 @@ proc main {argv} {
 			}
 
 			if {!$content} {
-				puts "Aborting commit due to empty commit message. (FA)"
-				exit -1
+				bail -1 "Aborting commit due to empty commit message. (FA)"
 			}
 
-			exit
+			bail
 		}
 		
 		default {
-			puts stderr "Unrecognizing emulation: '$emulation'"
-			exit -1
+			bail -1 "Unrecognizing emulation: '$emulation'"
 		}
 	}
 }
