@@ -35,7 +35,7 @@ proc main {} {
 
 	rule
 
-	puts [::fogbugz::logoff $token]
+	::fogbugz::logoff $token
 }
 
 if !$tcl_interactive main
