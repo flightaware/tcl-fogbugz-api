@@ -79,10 +79,33 @@ proc login {{api_url ""} {email ""} {password ""}} {
 	$dom delete
 
 	if {$token != ""} {
+		set ::fogbugz::config(token) $token
 		return [list 1 $token]
 	}
 
 	return [list 0 "Unknown Error"]
+}
+
+proc raw_cmd {cmd {dict ""}} {
+	set qs    [::http::formatQuery cmd $cmd]
+	if {[info exists ::fogbugz::config(token)] && (![dict exists $dict token] || [dict get $dict token] == "")} {
+		# If no token supplied to the proc, use the variable one if set
+		dict set dict token $::fogbugz::config(token)
+	}
+	foreach arg [dict keys $dict] {
+		append qs "&[::http::formatQuery $arg [dict get $dict $arg]]"
+	}
+	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
+	if {!$success} {
+		debug "raw_cmd $cmd ERROR: $error" $xml]
+	}
+
+	return [list $success $xml $error]
+}
+
+proc logoff {{token ""}} {
+	lassign [raw_cmd logoff [dict create token $token]] success xml error
+	return [list $success $xml $error]
 }
 
 proc parse_element {element type} {

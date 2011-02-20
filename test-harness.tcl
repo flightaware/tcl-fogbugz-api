@@ -1,7 +1,10 @@
 #!/usr/bin/env tclsh8.5
 
 source main.tcl
-catch {source config.tcl}
+if {[catch {source config.tcl} err]} {
+	puts "No configuration found: $err"
+	exit -1
+}
 
 proc rule {} {
 	puts "-- "
