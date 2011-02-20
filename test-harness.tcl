@@ -1,10 +1,19 @@
 #!/usr/bin/env tclsh8.5
 
+#
+# Normally you'd just do a 'package require fogbugz' like a normal person.
+#
+# But we want the test-harness to be able to work from the current directory
+# repo checkout to simplify testing.
+#
+# Source the stuff by hand below:
+#
 source main.tcl
 if {[catch {source config.tcl} err]} {
 	puts "No configuration found: $err"
 	exit -1
 }
+
 
 proc rule {} {
 	puts "-- "
