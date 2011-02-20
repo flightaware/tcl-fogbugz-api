@@ -29,7 +29,7 @@ proc emit_msg {message {bugzid ""}} {
 }
 
 proc load_msg {filename} {
-	set fp [open $::msgfile r]
+	set fp [open $filename r]
 	set commit_msg [read $fp]
 	close $fp
 
