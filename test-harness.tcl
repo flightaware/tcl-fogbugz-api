@@ -23,17 +23,27 @@ proc main {} {
 
 	rule
 
-	foreach listType [array names ::fogbugz::listResult] {
-		set result [::fogbugz::getList $listType [dict create token $token]]
-		puts "list$listType returned [llength $result] items"
-		if {$verbose} {
-			foreach item $result {
-				puts "- $item"
+	if {0} {
+		foreach listType [array names ::fogbugz::listResult] {
+			set result [::fogbugz::getList $listType [dict create token $token]]
+			puts "list$listType returned [llength $result] items"
+			if {$verbose} {
+				foreach item $result {
+					puts "- $item"
+				}
 			}
 		}
+		rule
 	}
 
-	rule
+	if {1} {
+		# puts [::fogbugz::raw_cmd viewPerson [dict create token $token ixPerson 2]]
+		puts [::fogbugz::view Person [dict create token $token ixPerson 2]]
+		rule
+		puts [::fogbugz::view Status [dict create token $token ixStatus 2]]
+		rule
+	}
+
 
 	::fogbugz::logoff $token
 }
