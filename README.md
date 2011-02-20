@@ -4,14 +4,11 @@ Tcl FogBugz XML API Package
 This package provides a Tcl native interface to the FogBugz XMP API as 
 documented at http://fogbugz.stackexchange.com/fogbugz-xml-api
 
-Currently this package only supports login and the various list methods of
-the API.
-
 Requirements
 ------------
 
 * A [FogBugz](http://www.fogcreek.com/fogbugz/) server or FogBugz On Demand account
-* Tcl 8.4 or newer
+* Tcl 8.5 or newer
 * [tDOM](https://github.com/tDOM/tdom)
 
 Other Stuff that's Included
