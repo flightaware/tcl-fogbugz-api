@@ -32,7 +32,7 @@ proc main {} {
 
 	rule
 
-	if {0} {
+	if {1} {
 		#
 		# Example of using the getList proc for obtaining a list of objects
 		# from the FogBugz server.
@@ -49,7 +49,7 @@ proc main {} {
 		rule
 	}
 
-	if {0} {
+	if {1} {
 		#
 		# Examples of using raw_cmd proc for running a raw API method and returning
 		# the result data into an array/dict suitable string
