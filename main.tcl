@@ -52,6 +52,19 @@ proc get_xml {url qs} {
 	return [list 1 $xml]
 }
 
+proc field_expando {buf} {
+	array set values $buf
+
+	foreach n [array names values "dt*"] {
+		puts "$n -> $values($n)"
+		if {[regexp {(\d\d\d\d-\d\d-\d\d)T(\d\d:\d\d:\d\d)Z} $values($n) _ yyyymmdd hhmmss]} {
+			append buf " ${n}_epoch [clock scan "$yyyymmdd $hhmmss" -gmt 1]"
+		}
+	}
+	return $buf
+}
+
+
 proc login {{api_url ""} {email ""} {password ""}} {
 	::http::register https 443 ::tls::socket
 	load_globals
@@ -189,7 +202,7 @@ proc search {dict} {
 	foreach obj $nodeList {
 		set retbuf [parse_element $obj case]
 		debug $retbuf
-		lappend returnList $retbuf
+		lappend returnList [field_expando $retbuf]
 	}
 
 	$dom delete
@@ -219,7 +232,7 @@ proc view {object dict} {
 	debug "== $object nodeList ==\n$nodeList"
 
 	foreach obj $nodeList {
-		set retbuf [parse_element $obj [string tolower $object]]
+		set retbuf [field_expando [parse_element $obj [string tolower $object]]]
 	}
 	debug $retbuf
 
