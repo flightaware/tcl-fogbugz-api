@@ -169,6 +169,40 @@ proc getList {object dict} {
 	return $returnList
 }
 
+proc search {dict} {
+	lassign [raw_cmd search $dict] success xml error
+
+	if {!$success} {
+		return [list 0 "search ERROR: $error" $xml]
+	}
+
+	debug "-- search xml --\n$xml"
+	set dom [dom parse $xml]
+	set doc [$dom documentElement]
+	set selectPath "/[join {response cases case} "/"]"
+	debug "-- search selectPath: $selectPath --"
+	set nodeList [$doc selectNodes $selectPath]
+	debug "== search nodeList ==\n$nodeList"
+
+	set returnList [list]
+
+	foreach obj $nodeList {
+		set retbuf [parse_element $obj case]
+		debug $retbuf
+		lappend returnList $retbuf
+	}
+
+	$dom delete
+
+	#if {[llength $returnList] == 0} {
+	#	puts "No elements in search List"
+	#	puts "-- \n$xml\n-- "
+	#}
+
+	return $returnList
+}
+
+
 proc view {object dict} {
 	lassign [raw_cmd "view$object" $dict] success xml error
 

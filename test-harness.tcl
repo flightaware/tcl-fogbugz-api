@@ -49,7 +49,7 @@ proc main {} {
 		rule
 	}
 
-	if {1} {
+	if {0} {
 		#
 		# Examples of using raw_cmd proc for running a raw API method and returning
 		# the result data into an array/dict suitable string
@@ -64,6 +64,16 @@ proc main {} {
 		array set status [::fogbugz::view Status [dict create token $token ixStatus 2]]
 		parray status
 		rule
+	}
+
+	if {1} {
+		set cols [join {ixBug sTitle sTags sProject sArea sPriority sPersonAssignedTo dtDue} ","]
+		::fogbugz::raw_cmd  setCurrentFilter [dict create token $token sFilter 48]
+		foreach casebuf [::fogbugz::search [dict create token $token cols $cols]] {
+			array set case $casebuf
+			parray case
+			rule
+		}
 	}
 
 	#
