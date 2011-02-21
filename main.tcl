@@ -56,7 +56,6 @@ proc field_expando {buf} {
 	array set values $buf
 
 	foreach n [array names values "dt*"] {
-		puts "$n -> $values($n)"
 		if {[regexp {(\d\d\d\d-\d\d-\d\d)T(\d\d:\d\d:\d\d)Z} $values($n) _ yyyymmdd hhmmss]} {
 			append buf " ${n}_epoch [clock scan "$yyyymmdd $hhmmss" -gmt 1]"
 		}
