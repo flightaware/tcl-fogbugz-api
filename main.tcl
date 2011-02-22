@@ -109,7 +109,7 @@ proc raw_cmd {cmd {dict ""}} {
 	}
 	lassign [get_xml $::fogbugz::config(api_url) $qs] success xml error
 	if {!$success} {
-		debug "raw_cmd $cmd ERROR: $error" $xml]
+		debug "raw_cmd $cmd ERROR: $error"
 	}
 
 	return [list $success $xml $error]
