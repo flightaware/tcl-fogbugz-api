@@ -168,7 +168,7 @@ proc getList {object dict} {
 	foreach obj $nodeList {
 		set retbuf [parse_element $obj [lindex $::fogbugz::listResult($object) end]]
 		debug $retbuf
-		lappend returnList $retbuf
+		lappend returnList [field_expando $retbuf]
 	}
 
 	$dom delete
