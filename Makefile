@@ -16,7 +16,9 @@ GID?=		0
 
 TCLSH?=		tclsh8.5
 
-install:	install-package
+all:
+
+install:	install-package install-git-hook
 
 uninstall:	uninstall-package
 
