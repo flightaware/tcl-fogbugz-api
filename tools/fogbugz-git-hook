@@ -76,7 +76,7 @@ proc main {argv} {
 					exec git config fogbugz.enabled true
 				}
 				default {
-					bail -1 stderr "Unrecognized command $argv"
+					bail -1 "Unrecognized command $argv"
 				}
 			}
 			bail
