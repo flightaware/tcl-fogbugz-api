@@ -83,11 +83,11 @@ proc main {argv} {
 		}
 
 		prepare-commit-msg {
-			if {[file exists $argv]} {
-				set ::msgfile $argv
+			lassign $argv ::msgfile ::msgsource
+
+			if {[file exists $::msgfile]} {
 				set ::commit_msg [load_msg $::msgfile]
 			} else {
-				set ::msgfile /dev/stdout
 				set ::commit_msg "# No Git-supplied commit message found\n# File doesn't exist: $argv\n#"
 			}
 
@@ -119,11 +119,12 @@ proc main {argv} {
 		}
 
 		commit-msg {
-			if {![file exists $argv]} {
+			lassign $argv ::msgfile
+
+			if {![file exists $::msgfile]} {
 				bail -1 "Commit message file does not exist: $argv"
 			}
 
-			set ::msgfile $argv
 			set ::commit_msg [load_msg $::msgfile]
 
 			set content 0
