@@ -11,20 +11,26 @@ package require fogbugz
 #set ::email		"username@example.com"
 #set ::password	"password1234"
 
-proc emit_msg {message {bugzid ""}} {
+proc emit_msg {message {bugzid ""} {comments 0}} {
 	set fp [open $::msgfile w]
-	puts $fp ""
-	puts $fp "BUGZID:$bugzid"
-	puts $fp "# ^^"
-	foreach line [split $message "\n"] {
-		puts $fp "# $line"
-	}
-	puts $fp "# "
-	foreach line [split $::commit_msg "\n"] {
-		if {[string trim $line] != ""} {
-			puts $fp $line
+	if {$comments} {
+		puts $fp ""
+		puts $fp "BUGZID:$bugzid"
+		puts $fp "# ^^"
+		foreach line [split $message "\n"] {
+			puts $fp "# $line"
 		}
+		puts $fp "# "
+		foreach line [split $::commit_msg "\n"] {
+			if {[string trim $line] != ""} {
+				puts $fp $line
+			}
+		}
+	} else {
+		puts -nonewline $fp $::commit_msg
+		puts $fp "BUGZID:$bugzid"
 	}
+	close $fp
 	exit
 }
 
@@ -85,6 +91,12 @@ proc main {argv} {
 		prepare-commit-msg {
 			lassign $argv ::msgfile ::msgsource
 
+			if {$::msgsource != ""} {
+				set comments 0
+			} else {
+				set comments 1
+			}
+
 			if {[file exists $::msgfile]} {
 				set ::commit_msg [load_msg $::msgfile]
 			} else {
@@ -98,13 +110,13 @@ proc main {argv} {
 			}	
 	
 			if {!$logged_in} {
-				emit_msg "Unable to connect to FogBugz, sorry ($::token)"
+				emit_msg "Unable to connect to FogBugz, sorry ($::token)" $comments
 			}
 
 			lassign [::fogbugz::whoami [dict create token $::token]] ixPerson sFullName
 		
 			if {!$ixPerson} {
-				emit_msg "Git could not determine your FogBugz User ID so no BUGZID was set"
+				emit_msg "Git could not determine your FogBugz User ID so no BUGZID was set" $comments
 			}
 
 			# debug "You are user id $ixPerson"
@@ -112,10 +124,10 @@ proc main {argv} {
 			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
 			foreach interval [::fogbugz::getList Intervals [dict create token $::token ixPerson $ixPerson dtStart $dtStart]] {
 				if {![dict exists $interval dtEnd]} {
-					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] 
+					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] $comments
 				}
 			}
-			emit_msg "There is no current activity in FogBugz for $sFullName"
+			emit_msg "There is no current activity in FogBugz for $sFullName" $comments
 		}
 
 		commit-msg {
