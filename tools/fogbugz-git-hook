@@ -11,7 +11,7 @@ package require fogbugz
 #set ::email		"username@example.com"
 #set ::password	"password1234"
 
-proc emit_msg {message {bugzid ""} {comments 0}} {
+proc emit_msg {message {comments 0} {bugzid ""}} {
 	set fp [open $::msgfile w]
 	if {$comments} {
 		puts $fp ""
@@ -124,7 +124,7 @@ proc main {argv} {
 			set dtStart [clock format [expr [clock seconds] - 886400] -format "%Y-%m-%dT00:00:00Z"]
 			foreach interval [::fogbugz::getList Intervals [dict create token $::token ixPerson $ixPerson dtStart $dtStart]] {
 				if {![dict exists $interval dtEnd]} {
-					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" [dict get $interval ixBug] $comments
+					emit_msg "Automagically set your BUGZID based on the FogBugz current activity for $sFullName" $comments [dict get $interval ixBug]
 				}
 			}
 			emit_msg "There is no current activity in FogBugz for $sFullName" $comments
