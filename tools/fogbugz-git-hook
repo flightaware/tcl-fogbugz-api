@@ -83,7 +83,7 @@ proc main {argv} {
 					exec git config fogbugz.enabled true
 				}
 				default {
-					bail -1 "Unrecognized command $argv"
+					bail -1 "Unrecognized command $argv (Did you mean \"$emulation init\" ?)"
 				}
 			}
 			bail
