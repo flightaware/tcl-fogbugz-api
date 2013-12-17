@@ -58,6 +58,11 @@ proc bail {{retcode 0} {msg ""}} {
 
 proc main {argv} {
 	set emulation [file tail [info script]]
+	set enabled [exec git config fogbugz.enabled]
+
+	if {![string is true -strict $enabled]} {
+		exit
+	}
 
 	switch $emulation {
 		fogbugz-git-hook {
