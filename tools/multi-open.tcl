@@ -1,4 +1,4 @@
-#!/usr/bin/env tclsh8.5
+#!/usr/bin/env tclsh8.6
 #
 # Reference code for the FogBugz API Tcl package
 #
