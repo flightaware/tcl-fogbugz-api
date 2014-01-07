@@ -14,7 +14,7 @@ TARGET?=	$(LIB)/$(PACKAGE)
 UID?=		0
 GID?=		0
 
-TCLSH?=		tclsh8.5
+TCLSH?=		tclsh8.6
 
 all:
 
