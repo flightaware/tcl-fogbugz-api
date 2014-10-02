@@ -148,7 +148,11 @@ proc parse_element {element type} {
 	return
 }
 
-proc getList {object dict} {
+proc getList {object {dict ""}} {
+	if {[info exists ::fogbugz::config(token)] && (![dict exists $dict token] || [dict get $dict token] == "")} {
+		# If no token supplied to the proc, use the variable one if set
+		dict set dict token $::fogbugz::config(token)
+	}
 	lassign [raw_cmd "list$object" $dict] success xml error
 
 	if {!$success} {
