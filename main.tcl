@@ -1,8 +1,10 @@
-#!/usr/bin/env tclsh8.6
+#!/usr/bin/env tclsh8.5
 
 package require http
 package require tdom
 package require tls
+
+::tls::init -ssl2 0 -ssl3 0 -tls1 1
 
 namespace eval ::fogbugz {
 
