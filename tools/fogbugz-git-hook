@@ -56,14 +56,16 @@ proc bail {{retcode 0} {msg ""}} {
 	exit $retcode
 }
 
+proc is_enabled {} {
+    set enabled "false"
+    catch {set enabled [exec git config fogbugz.enabled]}
+
+    return [string is true -strict $enabled]
+}
+
+
 proc main {argv} {
 	set emulation [file tail [info script]]
-	set enabled "false"
-	catch {set enabled [exec git config fogbugz.enabled]}
-
-	if {![string is true -strict $enabled]} {
-		exit
-	}
 
 	switch $emulation {
 		fogbugz-git-hook {
@@ -96,6 +98,10 @@ proc main {argv} {
 		}
 
 		prepare-commit-msg {
+			if {![is_enabled]} {
+                            exit
+                        }
+
 			lassign $argv ::msgfile ::msgsource
 
 			if {$::msgsource != ""} {
@@ -138,6 +144,10 @@ proc main {argv} {
 		}
 
 		commit-msg {
+			if {![is_enabled]} {
+                            exit
+                        }
+
 			lassign $argv ::msgfile
 
 			if {![file exists $::msgfile]} {
