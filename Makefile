@@ -38,6 +38,6 @@ make uninstall-package:
 
 install-git-hook:
 	@echo "Installing fogbugz-git-hook to $(BIN)" 
-	@install -o $(UID) -g $(UID) -m 0755 tools/fogbugz-git-hook $(BIN)/ 
+	@install -o $(UID) -g $(GID) -m 0755 tools/fogbugz-git-hook $(BIN)/ 
 	@sed -i '' -e's/tclsh.\../$(TCLSH)/' $(BIN)/fogbugz-git-hook
 
